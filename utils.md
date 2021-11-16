@@ -15,7 +15,7 @@ import Reality from 'xxxx';
 Vue.use(CreateAPI);
 Vue.createAPI(Reality, true);
 # 调用该组件内部AAA方法
-this.$createReality().AAA()
+this.$createReality().show()
 ```
 
 ## 解决加减乘除精度丢失问题
@@ -60,37 +60,34 @@ export function numberFixed(a, b, symbol = '+') {
 ## 时间相关
 * 格式化
 ``` bash
-export function dateFormat(time, cFormat) {
+export function formatTime(time, pattern) {
   if (arguments.length === 0) {
     return null
   }
   if (!time) return ''
-  const format = cFormat || 'yyyy-mm-dd hh:ii:ss'
-  let date
-  if (typeof time === 'object') {
-    date = time
-  } else {
-    if (('' + time).length === 10) time = parseInt(time) * 1000
-    date = new Date(time)
+  const _pattern = pattern || 'yyyy-MM-dd hh:mm:ss'
+  const date = new Date(time)
+  if (date.toString() === 'Invalid Date') {
+    return ''
   }
-  const formatObj = {
-    y: date.getFullYear(),
-    m: date.getMonth() + 1,
+  const timeObj = {
+    yyyy: date.getFullYear(),
+    MM: `0${date.getMonth() + 1}`.slice(-2),
+    M: date.getMonth() + 1,
+    dd: `0${date.getDate()}`.slice(-2),
     d: date.getDate(),
+    hh: `0${date.getHours()}`.slice(-2),
     h: date.getHours(),
-    i: date.getMinutes(),
-    s: date.getSeconds(),
-    a: date.getDay()
+    mm: `0${date.getMinutes()}`.slice(-2),
+    m: date.getMinutes(),
+    ss: `0${date.getSeconds()}`.slice(-2),
+    s: date.getSeconds()
   }
-  const time_str = format.replace(/(y|m|d|h|i|s|a)+/gi, (result, key) => {
-    let value = formatObj[key]
-    if (key === 'a') return ['一', '二', '三', '四', '五', '六', '日'][value - 1]
-    if (result.length > 0 && value < 10) {
-      value = '0' + value
-    }
-    return value || 0
+  const timeStr = _pattern.replace(/(yyyy|MM|M|dd|d|hh|h|mm|m|ss|s)+/g, function(match, p) {
+    const value = timeObj[p]
+    return value
   })
-  return time_str
+  return timeStr
 }
 ```
 * 获取每个月第一天0时时间戳
@@ -214,7 +211,7 @@ export function downloadFile(resBlob, fileName) {
   })
   const a = document.createElement("a")
   const reg = /filename=(.*.xls)/
-  const _fileName = decodeURIComponent(reg.exec(res.headers['content-disposition'])[1])
+  const _fileName = res.headers ? decodeURIComponent(reg.exec(res.headers['content-disposition'])[1]) : '新建文件'
   // 正则匹配获取文件名
   a.download = fileName || _fileName
   a.href = URL.createObjectURL(blob)
@@ -268,6 +265,69 @@ export function getId(list, value, children = 'children', key = 'id', extraKey =
         return node
       }
     }
+  }
+}
+```
+## 精确到指定小数点 解决了toFixed不精确的js BUG
+``` bash
+export function toFixed(num, iCount) {
+  // iCount 保留几位小数
+  var srcValue = num;
+  var zs = true;
+
+  // 判断是否小数长度不大于iCount
+  var floatValue = srcValue.toString().split(".");
+  if (floatValue[1].length <= iCount) {
+    return Number(srcValue).toFixed(iCount);
+  }
+
+  // 判断是否是负数
+  if (srcValue < 0) {
+    srcValue = Math.abs(srcValue);
+    zs = false;
+  }
+  var iB = Math.pow(10, iCount);
+
+  // 有时乘100结果也不精确
+  var value1 = srcValue * iB;
+  var anumber = new Array();
+  var anumber1 = new Array();
+  var fvalue = value1;
+  var value2 = value1.toString();
+  var idot = value2.indexOf(".");
+
+  // 如果是小数
+  if (idot != -1) {
+    anumber = srcValue.toString().split(".");
+    // 如果是科学计数法结果
+    if (anumber[1].indexOf("e") != -1) {
+      return Math.round(value1) / iB;
+    }
+    anumber1 = value2.split(".");
+    if (anumber[1].length <= iCount) {
+      return parseFloat(num, 10);
+    }
+    var fvalue3 = parseInt(anumber[1].substring(iCount, iCount + 1), 10);
+    if (fvalue3 >= 5) {
+      fvalue = parseInt(anumber1[0], 10) + 1;
+    }
+    else {
+      // 对于传入的形如111.834999999998 的处理（传入的计算结果就是错误的，应为111.835）
+      if (fvalue3 == 4 && anumber[1].length > 10 && parseInt(anumber[1].substring(iCount + 1, iCount + 2), 10) == 9) {
+        fvalue = parseInt(anumber1[0], 10) + 1;
+      }
+      else {
+        fvalue = parseInt(anumber1[0], 10);
+      }
+    }
+  }
+  
+  // 如果是负数就用0减四舍五入的绝对值
+  if (zs) {
+    return fvalue / iB;
+  }
+  else {
+    return 0 - fvalue / iB;
   }
 }
 ```
@@ -381,6 +441,27 @@ export function equip() {
     return '移动端'
   }
   return 'PC端'
+}
+```
+## 判断对象是否一致
+``` bash
+export function isObjectValueEqual(a, b) {
+  var aProps = Object.keys(a);
+  var bProps = Object.keys(b);
+  if (aProps.length != bProps.length) {
+    return false;
+  }
+  for (var i = 0; i < aProps.length; i++) {
+    var propName = aProps[i];
+    if (Object.prototype.toString.call(a[propName]) === "[object Object]" && Object.prototype.toString.call(a[propName]) === "[object Object]") {
+      if (!isObjectValueEqual(a[propName], b[propName])) {
+        return false
+      }
+    } else if (a[propName] !== b[propName]) {
+      return false;
+    }
+  }
+  return true;
 }
 ```
 ## 本地存储
@@ -519,6 +600,14 @@ export function validateEmail(email) {
 export function validateNumber(str) {
   const reg = /^[0-9]*[1-9][0-9]*$/
   return reg.test(str)
+}
+```
+* 数值
+``` bash
+export function validateNumber(str) {
+  const regPos = /^\d+(\.\d+)?$/
+  const regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/
+  return regPos.test(str) || regNeg.test(str)
 }
 ```
 * 验证密码至少 8 位，需包含数字、英文字母、特殊符号（~!@#$%^&*）

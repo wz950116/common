@@ -110,7 +110,7 @@ class LeafletMap {
     const L = this.$L;
     const gisConfig = this.gisConfig;
     const map = L.map(this.$el, {
-      crs: L.CRS.EPSG4326,
+      crs: L.CRS.EPSG4326, // leaflet默认是3857坐标系
       maxZoom: 17,
       center: gisConfig.center,
       zoom: gisConfig.zoom,
@@ -153,6 +153,14 @@ class LeafletMap {
         },
         options
       )
+      // 高德底图切换
+      // 'http://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
+      // {
+      //   attribution: '&copy; 高德地图',
+      //   maxZoom: 19,
+      //   tileSize: 256,
+      //   subdomains: '1234'
+      // }
     );
   }
 

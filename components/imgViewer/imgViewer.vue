@@ -1,4 +1,28 @@
 <template>
+  <!-- 
+    基于v-viewer实现图片预览
+    
+    main.js内容如下：
+    import 'viewerjs/dist/viewer.css'
+    import Viewer from 'v-viewer'
+    import ImgViewer from '@/components/imgViewer/imgViewer' // 即此文件
+
+    Vue.use(CreateAPI)
+    Vue.use(Viewer, { defaultOptions: { zIndex: 9999 }})
+    Vue.createAPI(ImgViewer, true)
+
+    调用方式如下：
+    this.$createImgViewer({
+      $props: {
+        images: [
+          'https://www.baidu.com/img/flexible/logo/pc/result.png',
+          'https://s.gravatar.com/avatar/89bedb3775d4f051d3708001df43da7e?size=100&default=retro',
+          'https://www.baidu.com/img/flexible/logo/pc/result.png'
+        ],
+        index: 1
+      }
+    }).show()
+   -->
   <div>
     <viewer
       v-if="images && images.length"

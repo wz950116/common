@@ -10,4 +10,5 @@ export const $imageViewer = (function() {
   return instance.vm
 })()
 
+// 基于element-ui的图片预览控件实现，内容自定义
 // 使用 this.$imageViewer.show([url....])
