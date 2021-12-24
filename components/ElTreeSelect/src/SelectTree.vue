@@ -6,7 +6,7 @@
     <el-tree
       v-if="treeData && treeData.length > 0 && !isClear"
       ref="tree"
-      :style="{'min-width': treeWidth}"
+      :style="{'min-width': treeWidth, height: '300px', 'overflow-y': 'auto'}"
       class="select-tree"
       :data="treeData"
       :props="defaultProps"

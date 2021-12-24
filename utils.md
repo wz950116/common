@@ -595,11 +595,24 @@ export function validateEmail(email) {
   return /^[\w\-+]+(\.[\w\-+]+)*@(\w-?)+(\.\w{2,})+$/.test(emails);
 }
 ```
+* 整数
+``` bash
+export function isInteger(val) {
+  if (typeof obj === 'number' && !isNaN(num) && num % 1 === 0) {
+    return true
+  } else {
+    return false
+  }
+  // 也可以用Number.isInteger或正则
+  // parseInt来判断是否等于自身针对超大数值会出问题
+}
+```
 * 正整数
 ``` bash
 export function validateNumber(str) {
   const reg = /^[0-9]*[1-9][0-9]*$/
   return reg.test(str)
+  // number > 0 && Number.isInteger(Number(number))
 }
 ```
 * 数值
