@@ -7,6 +7,7 @@ import Bowser from 'bowser'
 import { Decimal } from 'decimal.js'
 import NP from 'number-precision'
 import CreateAPI from 'vue-create-api';
+import ClipboardJS from 'clipboard';
 ```
 
 ## 引入第三方小型组件或者全局注册公共组件
@@ -55,6 +56,16 @@ export function numberFixed(a, b, symbol = '+') {
       break
   }
   return result
+}
+```
+## 复制插件
+``` bash
+export function initClipboardJS() {
+  const clipboard = new ClipboardJS('#description')
+  clipboard.on('success', function() {
+    this.$message.success('复制成功')
+    e.clearSelection()
+  })
 }
 ```
 ## 时间相关
