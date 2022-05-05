@@ -9,7 +9,51 @@ import NP from 'number-precision'
 import CreateAPI from 'vue-create-api';
 import ClipboardJS from 'clipboard';
 ```
-
+## 微信语音转换功能
+``` bash
+function wechatSign(jsApiList = ['getLocation']) {
+  const hostUrl = /(Android)/i.test(navigator.userAgent) ? location.href.split('#')[0] : window.entryUrl;
+  var nonceStr = (function() {
+    return Math.random().toString(36).substr(2, 16);
+  })();
+  var timestamp = (function() {
+    return parseInt(new Date().getTime() / 1000) + '';
+  })();
+  return new Promise((resolve) => {
+    getWechatSign({ hostUrl, nonceStr, timestamp }).then(({ success, data, message }) => {
+      if (success) {
+        wx.config({
+          debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+          appId: process.env.VUE_APP_APPID, // 必填，公众号的唯一标识
+          timestamp, // 必填，生成签名的时间戳
+          nonceStr, // 必填，生成签名的随机串
+          signature: data, // 必填，签名
+          jsApiList: jsApiList // 必填，需要使用的JS接口列表
+        });
+      }
+      resolve();
+    });
+  });
+}
+export async function getWx() {
+  await wechatSign([
+    'translateVoice',
+    'startRecord',
+    'stopRecord',
+    'onVoiceRecordEnd',
+    'playVoice',
+    'onVoicePlayEnd',
+    'stopVoice',
+    'uploadVoice'
+  ]);
+  return new Promise((resolve, reject) => {
+    console.log(wx);
+    wx.ready(() => {
+      resolve();
+    });
+  })
+}
+```
 ## 引入第三方小型组件或者全局注册公共组件
 ``` bash
 import Reality from 'xxxx';
@@ -18,7 +62,6 @@ Vue.createAPI(Reality, true);
 # 调用该组件内部AAA方法
 this.$createReality().show()
 ```
-
 ## 解决加减乘除精度丢失问题
 ``` bash
 export function numberFixed(a, b, symbol = '+') {

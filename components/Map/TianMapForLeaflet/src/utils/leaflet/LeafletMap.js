@@ -218,9 +218,8 @@ class LeafletMap {
   addDivIcon(point, iconOption) {
     this.removeDivIcon()
     const _point = this._converterPoint(point)
-    this.divIconMarker = this.$L
-      .marker(_point, { icon: iconOption ? this.$L.icon(iconOption) : this.creatDivIcon() })
-      .addTo(this.$map)
+    this.divIconMarker = this.$L.marker(_point, iconOption)
+    this.divIconMarker.addTo(this.$map)
   }
 
   /** 添加多个标记 */
@@ -251,8 +250,7 @@ class LeafletMap {
     const divIconMarker = (list) => {
       list.forEach(item => {
         const _point = this._converterPoint(item.point)
-        const marker = this.$L
-          .marker(_point, { icon: this.creatGreenIcon(item.icon) })
+        const marker = this.$L.marker(_point, item.icon)
         // 添加点击事件传数据
         if (item.info) {
           marker.on('click', (e) => {
@@ -288,28 +286,6 @@ class LeafletMap {
       if (delIndex) {
         this.markerGroup.splice(delIndex, 1)
       }
-    }
-  }
-
-  /** 创建默认标记Icon */
-  creatDivIcon() {
-    if (this.creatDivIcon.divIcon) return this.creatDivIcon.divIcon
-    const divIcon = this.$L.divIcon({
-      className: 'iconfont icon-dingwei mapIcon',
-      iconSize: [19, 26],
-      iconAnchor: [9, 13], // 相对偏移的位置 把图片认为是一个正方形,点击的地方就是正方形的左上角
-      popupAnchor: [] // 弹出窗口相对于图标锚点“打开”的点的坐标。
-    })
-    this.creatDivIcon.divIcon = divIcon
-    return divIcon
-  }
-
-  /** 创建 icon */
-  creatGreenIcon(option) {
-    if (option) {
-      return this.$L.icon({ ...option })
-    } else {
-      return this.creatDivIcon()
     }
   }
 
