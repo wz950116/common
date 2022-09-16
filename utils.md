@@ -8,6 +8,27 @@ import { Decimal } from 'decimal.js'
 import NP from 'number-precision'
 import CreateAPI from 'vue-create-api';
 import ClipboardJS from 'clipboard';
+import VuexPersistence from 'vuex-persist'
+```
+## vuex + storage 存储持久化
+``` bash
+const vuexLocal = new VuexPersistence({
+  key: 'services',
+  storage: window.localStorage,
+  // 持久化部分模块
+  modules: ['user']
+})
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  modules: {
+    user
+  },
+  getters,
+  plugins: [vuexLocal.plugin]
+})
+
+export default store
 ```
 ## 微信语音转换功能
 ``` bash
@@ -239,7 +260,7 @@ export function initCalendar(year = new Date().getFullYear(), month = new Date()
 }
 ```
 ## 导出excel
-* 返回blob转base64形式
+* 返回blob格式
 ``` bash
 export function _downloadFile(resBlob, fileName) {
   const reader = new FileReader()
@@ -256,7 +277,7 @@ export function _downloadFile(resBlob, fileName) {
   }
 }
 ```
-* 返回二进制流转blob形式 reponseType: arraybuffer
+* 返回arraybuffer格式，需转blob形式 reponseType: arraybuffer
 ``` bash
 export function downloadFile(resBlob, fileName) {
   // 获取文件流,将流转换为excle
@@ -268,10 +289,10 @@ export function downloadFile(resBlob, fileName) {
   const _fileName = res.headers ? decodeURIComponent(reg.exec(res.headers['content-disposition'])[1]) : '新建文件'
   // 正则匹配获取文件名
   a.download = fileName || _fileName
-  a.href = URL.createObjectURL(blob)
+  a.href = window.URL.createObjectURL(blob)
   a.click()
   a = null
-  URL.revokeObjectURL(a.href)
+  window.URL.revokeObjectURL(a.href)
 }
 ```
 ## 深拷贝
@@ -391,33 +412,36 @@ export function transformPoint(target, type = 'WGS84', targetType = 'GCJ02') {
   return gcoord.transform(target, gcoord[type], gcoord[targetType])
 }
 ```
-## 防抖动
+## 防抖动(最后一次调用过后指定时间执行一次)
 ``` bash
 export function debounce(func, delay) {
-  let timer
+  let timer = null
   return function (...args) {
     if (timer) {
       clearTimeout(timer)
     }
-    timer = setTimeout(() => {
-      func.apply(this, args)
+    const _this = this
+    timer = setTimeout(function() {
+      timer = null
+      func.apply(_this, args)
     }, delay)
   }
 }
 ```
-## 节流
+## 节流(指定时间内只调用只执行一次)
 ``` bash
 export function throttle(func, delay) {
-  var timer = null;
-  return function () {
-    var context = this;
-    var args = arguments;
-    if (!timer) {
-      timer = setTimeout(function () {
-        func.apply(context, args);
-        timer = null;
-      }, delay);
+  let timer = null
+  return function (...args) {
+    if (timer) {
+      clearTimeout(timer)
     }
+    const _this = this
+    timer = setTimeout(function () {
+      func.apply(context, args)
+      timer = null
+    }, delay)
+    func.apply(_this, args)
   }
 }
 ```
