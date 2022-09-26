@@ -9,6 +9,7 @@ import NP from 'number-precision'
 import CreateAPI from 'vue-create-api';
 import ClipboardJS from 'clipboard';
 import VuexPersistence from 'vuex-persist'
+import lrz from 'lrz'
 ```
 ## vuex + storage 存储持久化
 ``` bash
@@ -259,6 +260,75 @@ export function initCalendar(year = new Date().getFullYear(), month = new Date()
   this.$forceUpdate();
 }
 ```
+## 图片转换成file对象
+* url转换成blob再转换成file对象
+``` bash
+export function getImageFileFromUrl(url, imageName) {
+  return new Promise((resolve, reject) => {
+    let blob = null
+    const xhr = new XMLHttpRequest()
+    xhr.open('GET', url)
+    xhr.setRequestHeader('Accept', 'image/*')
+    xhr.responseType = 'blob'
+    // 加载时处理
+    xhr.onload = () => {
+      // 获取返回结果
+      blob = xhr.response
+      const imgFile = new File([blob], imageName, { type: 'image/*' })
+      // 返回结果
+      resolve(imgFile)
+    }
+    xhr.onerror = (e) => {
+      reject(e)
+    }
+    // 发送
+    xhr.send()
+  })
+}
+```
+* 利用canvas把url转换成dataURL再转换成file对象
+``` bash
+export function getImageFileFromUrl(url, filename) {
+  // 创建Image实例比创建img标签更优
+  const Img = new Image()
+  let dataURL = ""
+  Img.src = url + "?v=" + Math.random() // 处理缓存,fix缓存bug,有缓存，浏览器会报错;
+  Img.setAttribute("crossOrigin", "Anonymous") // 解决控制台跨域报错的问题
+  Img.onload = function () {
+    const canvas = document.createElement("canvas")
+    const width = Img.width
+    const height = Img.height
+    canvas.width = width
+    canvas.height = height;
+    canvas.getContext("2d").drawImage(Img, 0, 0, width, height)
+    dataURL = canvas.toDataURL("image/jpeg") // 转换图片为dataURL
+
+    const arr = dataurl.split(",")
+    const mime = arr[0].match(/:(.*?);/)[1]
+    const bstr = atob(arr[1])
+    const n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    const file = new File([u8arr], filename, { type: mime })
+    this.fileList.push(file)
+  }
+}
+```
+* base64转换成file对象
+``` bash
+export function getImageFileFromBase64(url) {
+  lrz(url, {
+    width: 300
+    // quality: 0.8 // 自定义使用压缩方式
+  }).then((file) => {
+    console.log(file.file)
+  }).catch(error => {
+    console.log(error, 'transform fail!')
+  })
+}
+```
 ## 导出excel
 * 返回blob格式
 ``` bash
@@ -277,7 +347,7 @@ export function _downloadFile(resBlob, fileName) {
   }
 }
 ```
-* 返回arraybuffer格式，需转blob形式 reponseType: arraybuffer
+* 返回arraybuffer格式(需转blob形式 reponseType: arraybuffer)
 ``` bash
 export function downloadFile(resBlob, fileName) {
   // 获取文件流,将流转换为excle
