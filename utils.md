@@ -531,7 +531,7 @@ export function encryptMD5(password) {
 ```
 * AES
 ``` bash
-# 加密 需要约定好盐值keyStr
+# Base64加密 需要约定好盐值keyStr
 export function encrypt(word, keyStr) {
   keyStr = keyStr || 'abcdefgabcdefg12'
   var key = CryptoJS.enc.Utf8.parse(keyStr)
@@ -539,11 +539,18 @@ export function encrypt(word, keyStr) {
   var encrypted = CryptoJS.AES.encrypt(srcs, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 })
   return encrypted.toString()
 }
-# 解密
+# 解密（Base64格式）
 export function decrypt(word, keyStr) {
   keyStr = keyStr || 'abcdefgabcdefg12'
   var key = CryptoJS.enc.Utf8.parse(keyStr)
   var decrypt = CryptoJS.AES.decrypt(word, key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 })
+  return CryptoJS.enc.Utf8.stringify(decrypt).toString()
+}
+# 解密（HEX格式）
+export function decrypt(word, keyStr) {
+  keyStr = keyStr || 'abcdefgabcdefg12'
+  var key = CryptoJS.enc.Utf8.parse(keyStr)
+  var decrypt = CryptoJS.AES.decrypt(CryptoJS.enc.Base64.stringify(CryptoJS.enc.Hex.parse(word)), key, { mode: CryptoJS.mode.ECB, padding: CryptoJS.pad.Pkcs7 })
   return CryptoJS.enc.Utf8.stringify(decrypt).toString()
 }
 ```
