@@ -6,6 +6,7 @@
 </template>
 
 <script>
+// 浏览器端的代码编辑器库
 import * as monaco from 'monaco-editor'
 export default {
   data() {

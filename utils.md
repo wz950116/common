@@ -330,7 +330,7 @@ export function getImageFileFromBase64(url) {
 }
 ```
 ## 导出excel
-* 返回blob格式
+* 方法一
 ``` bash
 export function _downloadFile(resBlob, fileName) {
   const reader = new FileReader()
@@ -347,11 +347,11 @@ export function _downloadFile(resBlob, fileName) {
   }
 }
 ```
-* 返回arraybuffer格式(需转blob形式 reponseType: arraybuffer)
+* 方法二（推荐）
 ``` bash
-export function downloadFile(resBlob, fileName) {
-  // 获取文件流,将流转换为excle
-  const blob = new Blob([resBlob], {
+export function downloadFile(res, fileName) {
+  // 获取arraybuffer格式的流,将流转换为blob
+  const blob = new Blob([res], {
     type: "application/vnd.ms-excel"
   })
   const a = document.createElement("a")
