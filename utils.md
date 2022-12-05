@@ -332,6 +332,41 @@ export function getImageFileFromBase64(url) {
 ## 导出excel
 * 方法一
 ``` bash
+export function downloadFile(res) {
+  // responseType: blob
+  const downloadLink = window.document.createElement('a')
+  let fileName = res.headers && res.headers.hasOwnProperty('content-disposition') && decodeURI(res.headers['content-disposition']).match(/filename=(.+)/)[1]
+  fileName = fileName || (Math.random().toString(16).split('.')[1] + '.xlsx')
+  const fileUrl = res.data && window.URL.createObjectURL(res.data)
+  downloadLink.href = fileUrl
+  downloadLink.download = fileName
+  document.body.appendChild(downloadLink)
+  downloadLink.click()
+  document.body.removeChild(downloadLink)
+  window.URL.revokeObjectURL(fileUrl)
+}
+```
+* 方法二
+``` bash
+export function downloadFile(res, fileName) {
+  // responseType: arraybuffer 转换成blob导出
+  const blob = new Blob([res], {
+    type: 'application/vnd.ms-excel'
+  })
+  const a = document.createElement('a')
+  const reg = /filename=(.*.xls)/
+  const _fileName = res.headers ? decodeURIComponent(reg.exec(res.headers['content-disposition'])[1]) : '新建文件'
+  // 正则匹配获取文件名
+  a.href = window.URL.createObjectURL(blob)
+  a.download = fileName || _fileName
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  window.URL.revokeObjectURL(a.href)
+}
+```
+* 方法三
+``` bash
 export function _downloadFile(resBlob, fileName) {
   const reader = new FileReader()
   // 转换为base64，可以直接放入a标签href
@@ -345,24 +380,6 @@ export function _downloadFile(resBlob, fileName) {
     a.click()
     document.body.removeChild(a)
   }
-}
-```
-* 方法二（推荐）
-``` bash
-export function downloadFile(res, fileName) {
-  // 获取arraybuffer格式的流,将流转换为blob
-  const blob = new Blob([res], {
-    type: "application/vnd.ms-excel"
-  })
-  const a = document.createElement("a")
-  const reg = /filename=(.*.xls)/
-  const _fileName = res.headers ? decodeURIComponent(reg.exec(res.headers['content-disposition'])[1]) : '新建文件'
-  // 正则匹配获取文件名
-  a.download = fileName || _fileName
-  a.href = window.URL.createObjectURL(blob)
-  a.click()
-  a = null
-  window.URL.revokeObjectURL(a.href)
 }
 ```
 ## 深拷贝
@@ -696,13 +713,12 @@ export function thousands(value, digit) {
 * 身份证
 ``` bash
 export function isCardNo(card) {
-  // 身份证号码为15位或者18位，15位时全为数字，18位前17位为数字，最后一位是校验位，可能为数字或字符X
-  var reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
-  if (reg.test(card) === false) {
-    alert("身份证输入不合法");
-    return false;
+  var _IDRe18 = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
+  var _IDre15 = /^([1-6][1-9]|50)\d{4}\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}$/
+  if (_IDRe18.test(card) || _IDre15.test(card)) {
+    return true
   }
-  return true;
+  return false
 }
 ```
 * 银行卡
@@ -719,7 +735,7 @@ export function isBankCard(card) {
 * 手机号
 ``` bash
 export function validateTelephone(obj) {
-  var pattern = /(^(\d{3,4}-)?\d{7,8})$|(^1[3|4|5|7|8][0-9]{9})/;
+  var pattern = /^(^(\d{3,4}-)?\d{7,8})$|(^1[3|4|5|7|8][0-9]{9})$/;
   if (pattern.test(obj)) {
     return true;
   } else {
@@ -759,7 +775,7 @@ export function isInteger(val) {
     return false
   }
   // 也可以用Number.isInteger或正则
-  // parseInt来判断是否等于自身针对超大数值会出问题
+  // 用parseInt来判断是否等于自身的方法，针对超大数值会出问题
 }
 ```
 * 正整数
@@ -776,6 +792,13 @@ export function validateNumber(str) {
   const regPos = /^\d+(\.\d+)?$/
   const regNeg = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/
   return regPos.test(str) || regNeg.test(str)
+}
+```
+* 保留2位小数点
+``` bash
+export function validateAnyPoint(str) {
+  const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{2})$/
+  return reg.test(str)
 }
 ```
 * 验证密码至少 8 位，需包含数字、英文字母、特殊符号（~!@#$%^&*）

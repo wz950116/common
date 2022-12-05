@@ -1,5 +1,7 @@
 <template>
   <!-- 
+    调用js形式使用
+    
     基于v-viewer实现图片预览
     
     main.js内容如下：
