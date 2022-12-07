@@ -31,7 +31,8 @@ const store = new Vuex.Store({
 
 export default store
 ```
-## 微信语音转换功能
+## 微信小程序
+* 语音转换功能
 ``` bash
 function wechatSign(jsApiList = ['getLocation']) {
   const hostUrl = /(Android)/i.test(navigator.userAgent) ? location.href.split('#')[0] : window.entryUrl;
@@ -74,6 +75,51 @@ export async function getWx() {
       resolve();
     });
   })
+}
+```
+* 录音功能
+``` bash
+const plugin = requirePlugin("WechatSI")
+let manager = plugin.getRecordRecognitionManager()
+// 手指按下事件
+touchStart: function() {
+  this.voiceTextFlag = false
+  manager.start({
+    duration: 60000,
+    lang: "zh_CN"
+  })
+  uni.showLoading({
+    title: '正在语音输入'
+  })
+}
+// 手指松开事件
+touchEnd: function() {
+  this.voiceTextFlag = true
+  uni.hideLoading()
+  uni.showToast({
+    title: '语音输入完成',
+    duration: 500
+  })
+  manager.stop()
+}
+// 插件初始化
+initRecord: function() {
+  manager.onStart = function(res) {
+    this.voiceText = "onStart:" + res.msg + "正在录音"
+  }
+  // 有新的识别内容返回，则会调用此事件  
+  manager.onRecognize = (res) => {
+    this.voiceText = this.voiceText + res.result.replace('。', '')
+  }
+  // 识别结束事件  
+  manager.onStop = (res) => {
+    this.voiceText = this.voiceText + res.result.replace('。', '')
+  }
+  // 识别错误事件  
+  manager.onError = (res) => {
+    // this.voiceState = this.voiceState + res.msg
+    // this.length = this.voiceState.length
+  }
 }
 ```
 ## 引入第三方小型组件或者全局注册公共组件
