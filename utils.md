@@ -381,7 +381,7 @@ export function getImageFileFromBase64(url) {
 export function downloadFile(res) {
   // responseType: blob
   const downloadLink = window.document.createElement('a')
-  let fileName = res.headers && res.headers.hasOwnProperty('content-disposition') && decodeURI(res.headers['content-disposition']).match(/filename=(.+)/)[1]
+    let fileName = res.headers && res.headers.hasOwnProperty('content-disposition') && (decodeURI(res.headers['content-disposition']).match(/file[n|N]ame=(.+)/) || decodeURI(res.headers['content-disposition']).match(/file[n|N]ame\*=(.+)/))[1]
   fileName = fileName || (Math.random().toString(16).split('.')[1] + '.xlsx')
   const fileUrl = res.data && window.URL.createObjectURL(res.data)
   downloadLink.href = fileUrl

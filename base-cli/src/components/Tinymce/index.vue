@@ -21,6 +21,7 @@ import 'tinymce/plugins/code'
 import 'tinymce/plugins/table'
 import 'tinymce/plugins/lists'
 import 'tinymce/plugins/wordcount' // 字数统计插件
+import 'tinymce/icons/default'
 export default {
   name: 'TinymceEditor',
   components: { Editor },
