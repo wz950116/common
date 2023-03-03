@@ -551,6 +551,47 @@ export function toFixed(num, iCount) {
   }
 }
 ```
+## 数字转汉字
+``` bash
+export function toChinesNum(num) {
+  const changeNum = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九']
+  const unit = ['', '十', '百', '千', '万']
+  num = parseInt(num)
+  const getWan = (temp) => {
+    const strArr = temp.toString().split('').reverse()
+    let newNum = ''
+    const newArr = []
+    strArr.forEach((item, index) => {
+      newArr.unshift(item === '0' ? changeNum[item] : changeNum[item] + unit[index])
+    })
+    const numArr = []
+    newArr.forEach((m, n) => {
+      if (m !== '零') numArr.push(n)
+    })
+    if (newArr.length > 1) {
+      newArr.forEach((m, n) => {
+        if (newArr[newArr.length - 1] === '零') {
+          if (n <= numArr[numArr.length - 1]) {
+            newNum += m
+          }
+        } else {
+          newNum += m
+        }
+      })
+    } else {
+      newNum = newArr[0]
+    }
+
+    return newNum
+  }
+  const overWan = Math.floor(num / 10000)
+  let noWan = num % 10000
+  if (noWan.toString().length < 4) {
+    noWan = '0' + noWan
+  }
+  return overWan ? getWan(overWan) + '万' + getWan(noWan) : getWan(num)
+}
+```
 ## 坐标转换（WGS84：天地图、 GCJ02：高德、 BD09：百度）
 ``` bash
 export function transformPoint(target, type = 'WGS84', targetType = 'GCJ02') {
@@ -560,15 +601,13 @@ export function transformPoint(target, type = 'WGS84', targetType = 'GCJ02') {
 ## 防抖动(最后一次调用过后指定时间执行一次)
 ``` bash
 export function debounce(func, delay) {
-  let timer = null
-  return function (...args) {
-    if (timer) {
-      clearTimeout(timer)
-    }
-    const _this = this
+  var timer = null
+  return function () {
+    var context = this
+    var args = arguments
+    clearTimeout(timer)
     timer = setTimeout(function() {
-      timer = null
-      func.apply(_this, args)
+      func.apply(context, args)
     }, delay)
   }
 }
@@ -576,17 +615,17 @@ export function debounce(func, delay) {
 ## 节流(指定时间内只调用只执行一次)
 ``` bash
 export function throttle(func, delay) {
-  let timer = null
+  // window.addEventListener('scroll', throttle(func, 1000))
+  var timer = null
   return function (...args) {
-    if (timer) {
-      clearTimeout(timer)
+    var context = this
+    var args = arguments
+    if (!timer) {
+      timer = setTimeout(function () {
+        func.call(context, args)
+        timer = null
+      }, delay)
     }
-    const _this = this
-    timer = setTimeout(function () {
-      func.apply(context, args)
-      timer = null
-    }, delay)
-    func.apply(_this, args)
   }
 }
 ```
