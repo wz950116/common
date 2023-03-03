@@ -3,14 +3,18 @@
     调用js形式使用
     
     基于v-viewer实现图片预览
+
+    "v-viewer": "^1.5.1"
+    "vue-create-api": "^0.2.3"
     
     main.js内容如下：
+    import CreateAPI from 'vue-create-api'
     import 'viewerjs/dist/viewer.css'
     import Viewer from 'v-viewer'
     import ImgViewer from '@/components/imgViewer/imgViewer' // 即此文件
 
     Vue.use(CreateAPI)
-    Vue.use(Viewer, { defaultOptions: { zIndex: 9999 }})
+    Vue.use(Viewer, { defaultOptions: { zIndex: 9999 } })
     Vue.createAPI(ImgViewer, true)
 
     调用方式如下：

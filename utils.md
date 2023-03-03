@@ -11,6 +11,18 @@ import ClipboardJS from 'clipboard';
 import VuexPersistence from 'vuex-persist'
 import lrz from 'lrz'
 ```
+## H5唤起各种地图APP
+``` bash
+const longitude = ''
+const latitude = ''
+if (val === '高德地图') {
+  location.href = `https://uri.amap.com/marker?position=${longitude},${latitude}&callnative=1&coordinate=wgs84&src=mypage`
+} else if (val === '百度地图') {
+  location.href = `http://api.map.baidu.com/marker?location=${latitude},${longitude}&output=html&src=webapp.baidu.openAPIdemo&coord_type=wgs84`
+} else if (val === '腾讯地图') {
+  location.href = `https://apis.map.qq.com/uri/v1/marker?marker=coord:${latitude},${longitude};coordtype:1`
+}
+```
 ## vuex + storage 存储持久化
 ``` bash
 const vuexLocal = new VuexPersistence({
