@@ -10,6 +10,7 @@ import CreateAPI from 'vue-create-api';
 import ClipboardJS from 'clipboard';
 import VuexPersistence from 'vuex-persist'
 import lrz from 'lrz'
+import { debounce, throttle } from 'lodash-es'
 ```
 ## H5唤起各种地图APP
 ``` bash
@@ -194,18 +195,28 @@ export function initClipboardJS() {
 ## 时间相关
 * 格式化
 ``` bash
-export function formatTime(time, pattern) {
-  if (arguments.length === 0) {
-    return null
+export function formatTime(date, pattern) {
+  // 判断是否传时间，若没传则默认为当前时间
+  if (!date) {
+    date = new Date()
   }
-  if (!time) return ''
-  const _pattern = pattern || 'yyyy-MM-dd hh:mm:ss'
-  const date = new Date(time)
+  // 判断是否为字符串，例如：2020-02-02需要转换成2020/02/02，因为前者是8点后者是0点整
+  if (typeof date === 'string') {
+    date = new Date(date.replace(/-/g, '/'))
+  }
+  // 判断是否为时间戳，例如1680687930477
+  if (typeof date === 'number') {
+    date = new Date(date)
+  }
+  // 判断是否为不合法时间对象，例如：new Date('20200505')
   if (date.toString() === 'Invalid Date') {
     return ''
   }
+  // 判断是否传格式化要求
+  const _pattern = pattern || 'yyyy-MM-dd hh:mm:ss'
+  // 匹配项
   const timeObj = {
-    yyyy: date.getFullYear(),
+    yyyy: date.getFullYear() + '',
     MM: `0${date.getMonth() + 1}`.slice(-2),
     M: date.getMonth() + 1,
     dd: `0${date.getDate()}`.slice(-2),
@@ -217,7 +228,7 @@ export function formatTime(time, pattern) {
     ss: `0${date.getSeconds()}`.slice(-2),
     s: date.getSeconds()
   }
-  const timeStr = _pattern.replace(/(yyyy|MM|M|dd|d|hh|h|mm|m|ss|s)+/g, function(match, p) {
+  const timeStr = _pattern.replace(/(yyyy|MM|M|dd|d|hh|h|mm|m|ss|s)/g, function(match, p) {
     const value = timeObj[p]
     return value
   })
@@ -406,7 +417,7 @@ export function downloadFile(res) {
 ```
 * 方法二
 ``` bash
-export function downloadFile(res, fileName) {
+export function downloadFileByArraybuffer(res, fileName) {
   // responseType: arraybuffer 转换成blob导出
   const blob = new Blob([res], {
     type: 'application/vnd.ms-excel'
@@ -615,7 +626,7 @@ export function debounce(func, delay) {
 ## 节流(指定时间内只调用只执行一次)
 ``` bash
 export function throttle(func, delay) {
-  // window.addEventListener('scroll', throttle(func, 1000))
+  // 示例 window.addEventListener('scroll', throttle(func, 1000))
   var timer = null
   return function (...args) {
     var context = this
@@ -737,17 +748,21 @@ export function isObjectValueEqual(a, b) {
 ``` bash
 export const storage = {
   get(key) {
-    return localStorage.getItem(key);
-  },
+    try {
+      return JSON.parse(sessionStorage.getItem(key))
+    } catch {
+      return sessionStorage.getItem(key)
+    }
+  }
   set(key, value) {
     if (Object.prototype.toString.call(value) === '[object Object]') {
-      localStorage.setItem(key, JSON.stringify(value));
+      localStorage.setItem(key, JSON.stringify(value))
     } else {
-      localStorage.setItem(key, value);
+      localStorage.setItem(key, value)
     }
   },
   remove(key) {
-    localStorage.removeItem(key);
+    localStorage.removeItem(key)
   }
 }
 ```
@@ -789,7 +804,7 @@ export const shot = async () => {
   }
 }
 ```
-## 正则相关
+## 正则/格式化相关
 * 千分位化
 ``` bash
 export function thousands(value, digit) {
@@ -810,7 +825,7 @@ export function thousands(value, digit) {
 * 身份证
 ``` bash
 export function isCardNo(card) {
-  var _IDRe18 = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
+  var _IDRe18 = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9XxZz]$/
   var _IDre15 = /^([1-6][1-9]|50)\d{4}\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}$/
   if (_IDRe18.test(card) || _IDre15.test(card)) {
     return true
@@ -823,7 +838,6 @@ export function isCardNo(card) {
 export function isBankCard(card) {
   var reg = new RegExp(/^([1-9]{1})(\d{11}|\d{15}|\d{16}|\d{17}|\d{18})$/)
   if (reg.test(card) === false) {
-    alert("银行卡输入不合法");
     return false;
   }
   return true;
@@ -832,7 +846,7 @@ export function isBankCard(card) {
 * 手机号
 ``` bash
 export function validateTelephone(obj) {
-  var pattern = /^(^(\d{3,4}-)?\d{7,8})$|(^1[3|4|5|7|8][0-9]{9})$/;
+  var pattern = /^(^(\d{3,4}-)?\d{7,8})$|(^1[3|4|5|7|8][0-9]{9})$/
   if (pattern.test(obj)) {
     return true;
   } else {
@@ -865,8 +879,8 @@ export function validateEmail(email) {
 ```
 * 整数
 ``` bash
-export function isInteger(val) {
-  if (typeof obj === 'number' && !isNaN(num) && num % 1 === 0) {
+export function isInteger(num) {
+  if (typeof num === 'number' && !isNaN(num) && num % 1 === 0) {
     return true
   } else {
     return false
@@ -898,7 +912,14 @@ export function validateAnyPoint(str) {
   return reg.test(str)
 }
 ```
-* 验证密码至少 8 位，需包含数字、英文字母、特殊符号（~!@#$%^&*）
+* 保留至少2位小数点
+``` bash
+export function validateAnyPoint(str) {
+  const reg = /^(([1-9]{1}\d*)|(0{1}))(\.\d{1,2})?$/
+  return reg.test(str)
+}
+```
+* 验证密码至少8位，需包含数字、英文字母、特殊符号（~!@#$%^&*）
 ``` bash
 export function validateStrongPassword(str) {
   const reg = /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,}$/
