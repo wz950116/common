@@ -1,0 +1,106 @@
+{
+	"easycom": {
+		"^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+	},
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "公共服务平台"
+			}
+		},
+		{
+			"path": "pages/breakNews/index",
+			"style": {
+				"navigationBarTitleText": "我要爆料"
+			}
+		}
+	],
+	"subPackages": [{
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbStoreRL/index",
+			"style": {
+				"navigationBarTitleText": "商户认领"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbStoreRL/detail",
+			"style": {
+				"navigationBarTitleText": "商户详情"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbStoreRL/confirm",
+			"style": {
+				"navigationBarTitleText": "商户详情"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbStoreDJ/index",
+			"style": {
+				"navigationBarTitleText": "商户登记"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbEventIssue/index",
+			"style": {
+				"navigationBarTitleText": "案件反馈"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbEventIssue/detail",
+			"style": {
+				"navigationBarTitleText": "案件详情"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbEventIssue/confirm",
+			"style": {
+				"navigationBarTitleText": "案件详情"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbMyCustom/index",
+			"style": {
+				"navigationBarTitleText": "商户详情"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbMyCustom/detail",
+			"style": {
+				"navigationBarTitleText": "商户修改"
+			}
+		}]
+	}, {
+		"root": "pagesE",
+		"pages": [{
+			"path": "mqwbMyCustom/qrcode",
+			"style": {
+				"navigationBarTitleText": "商户详情"
+			}
+		}]
+	}],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
+}

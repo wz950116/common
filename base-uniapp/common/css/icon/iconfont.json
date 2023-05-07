@@ -1,0 +1,177 @@
+{
+  "id": "2403019",
+  "name": "公共服务移动端",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "20217213",
+      "name": "错误",
+      "font_class": "cuowu",
+      "unicode": "e73d",
+      "unicode_decimal": 59197
+    },
+    {
+      "icon_id": "20217214",
+      "name": "单选_未选",
+      "font_class": "danxuan_weixuan",
+      "unicode": "e73e",
+      "unicode_decimal": 59198
+    },
+    {
+      "icon_id": "20217215",
+      "name": "点赞_已点",
+      "font_class": "dianzan_yidian",
+      "unicode": "e73f",
+      "unicode_decimal": 59199
+    },
+    {
+      "icon_id": "20217216",
+      "name": "单选_已选",
+      "font_class": "danxuan_yixuan",
+      "unicode": "e740",
+      "unicode_decimal": 59200
+    },
+    {
+      "icon_id": "20217217",
+      "name": "电话",
+      "font_class": "dianhua",
+      "unicode": "e741",
+      "unicode_decimal": 59201
+    },
+    {
+      "icon_id": "20217218",
+      "name": "点赞_未点",
+      "font_class": "dianzan_weidian",
+      "unicode": "e742",
+      "unicode_decimal": 59202
+    },
+    {
+      "icon_id": "20217219",
+      "name": "关闭",
+      "font_class": "guanbi",
+      "unicode": "e743",
+      "unicode_decimal": 59203
+    },
+    {
+      "icon_id": "20217220",
+      "name": "定位2",
+      "font_class": "dingwei2",
+      "unicode": "e744",
+      "unicode_decimal": 59204
+    },
+    {
+      "icon_id": "20217221",
+      "name": "更多",
+      "font_class": "gengduo",
+      "unicode": "e745",
+      "unicode_decimal": 59205
+    },
+    {
+      "icon_id": "20217222",
+      "name": "定位",
+      "font_class": "dingwei",
+      "unicode": "e746",
+      "unicode_decimal": 59206
+    },
+    {
+      "icon_id": "20217223",
+      "name": "更多2",
+      "font_class": "gengduo2",
+      "unicode": "e747",
+      "unicode_decimal": 59207
+    },
+    {
+      "icon_id": "20217224",
+      "name": "调整半径",
+      "font_class": "tiaozhengbanjing",
+      "unicode": "e748",
+      "unicode_decimal": 59208
+    },
+    {
+      "icon_id": "20217225",
+      "name": "下拉",
+      "font_class": "xiala",
+      "unicode": "e749",
+      "unicode_decimal": 59209
+    },
+    {
+      "icon_id": "20217226",
+      "name": "添加",
+      "font_class": "tianjia",
+      "unicode": "e74a",
+      "unicode_decimal": 59210
+    },
+    {
+      "icon_id": "20217227",
+      "name": "关闭2",
+      "font_class": "guanbi2",
+      "unicode": "e74b",
+      "unicode_decimal": 59211
+    },
+    {
+      "icon_id": "20217228",
+      "name": "距离",
+      "font_class": "juli",
+      "unicode": "e74c",
+      "unicode_decimal": 59212
+    },
+    {
+      "icon_id": "20217229",
+      "name": "下滑2",
+      "font_class": "xiahua2",
+      "unicode": "e74d",
+      "unicode_decimal": 59213
+    },
+    {
+      "icon_id": "20217230",
+      "name": "我的收藏",
+      "font_class": "wodeshoucang",
+      "unicode": "e74e",
+      "unicode_decimal": 59214
+    },
+    {
+      "icon_id": "20217231",
+      "name": "正确",
+      "font_class": "zhengque",
+      "unicode": "e74f",
+      "unicode_decimal": 59215
+    },
+    {
+      "icon_id": "20217232",
+      "name": "语音",
+      "font_class": "yuyin",
+      "unicode": "e750",
+      "unicode_decimal": 59216
+    },
+    {
+      "icon_id": "20217233",
+      "name": "上滑2",
+      "font_class": "shanghua2",
+      "unicode": "e751",
+      "unicode_decimal": 59217
+    },
+    {
+      "icon_id": "20217234",
+      "name": "相机",
+      "font_class": "xiangji",
+      "unicode": "e752",
+      "unicode_decimal": 59218
+    },
+    {
+      "icon_id": "20217235",
+      "name": "搜索",
+      "font_class": "sousuo",
+      "unicode": "e753",
+      "unicode_decimal": 59219
+    },
+    {
+      "icon_id": "20217236",
+      "name": "上滑",
+      "font_class": "shanghua",
+      "unicode": "e754",
+      "unicode_decimal": 59220
+    }
+  ]
+}
