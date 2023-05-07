@@ -29,7 +29,7 @@
     />
   -->
   <div>
-    <van-field
+    <cmb-field
       readonly
       clickable
       type="textarea"
@@ -50,9 +50,9 @@
           <div @click="confirm" class="confirm">确定</div>
         </div>
         <div class="checkbox-list">
-          <van-checkbox-group v-model="result">
-            <van-cell-group>
-              <van-cell
+          <cmb-checkbox-group v-model="result">
+            <cmb-cell-group>
+              <cmb-cell
                 v-for="(item, index) in columns"
                 clickable
                 :key="index"
@@ -60,11 +60,11 @@
                 @click="toggle(item, index)"
               >
                 <template #right-icon>
-                  <van-checkbox :name="item[optionKey]" ref="checkboxes" />
+                  <cmb-checkbox :name="item[optionKey]" ref="checkboxes" />
                 </template>
-              </van-cell>
-            </van-cell-group>
-          </van-checkbox-group>
+              </cmb-cell>
+            </cmb-cell-group>
+          </cmb-checkbox-group>
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@ export default {
       default: ''
     },
     value: {
-      type: String,
+      type: [String, Array],
       default: ''
     },
     optionName: {
@@ -141,6 +141,7 @@ export default {
       this.currentCodes = this.value.split(',').map(v => {
         return this.columns.find(x => x[this.optionName] === v)[this.optionKey]
       })
+      this.formData[this.name] = [...this.currentNames]
     }
   },
   methods: {
@@ -154,8 +155,7 @@ export default {
       // 移动端选择器需要以name形式传输，方便最后提交时统一转换
       this.showType = false
       this.values = this.currentNames.toString()
-      this.formData[this.name] = this.values
-      console.log(this.currentNames, 234)
+      this.formData[this.name] = [...this.currentNames]
     },
     cancel() {
       // 重置成修改前
@@ -169,7 +169,6 @@ export default {
       } else {
         const index = this.currentNames.indexOf(item[this.optionName])
         this.currentNames.splice(index, 1)
-        console.log(this.currentNames, 666)
       }
       if (!this.currentCodes.includes(item[this.optionKey])) {
         this.currentCodes.push(item[this.optionKey])
@@ -181,7 +180,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .popup-bg {
   background: rgba(0, 0, 0, 0.7);
   width: 100%;

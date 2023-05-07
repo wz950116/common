@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <!-- leaflet -->
+  <script src="<%= webpackConfig.output.publicPath %>leaflet/leaflet.js"></script>
+  <link rel="stylesheet" href="<%= webpackConfig.output.publicPath %>leaflet/leaflet.css">
+  <link rel="stylesheet" href="<%= webpackConfig.output.publicPath %>leaflet/leaflet.draw.css">
+  </link>
+  <script src="<%= webpackConfig.output.publicPath %>leaflet/leaflet.polylineDecorator.js"></script>
+  <script src="<%= webpackConfig.output.publicPath %>leaflet/Leaflet.AnimatedMarker.js"></script>
+  <script src="<%= webpackConfig.output.publicPath %>leaflet/leaflet.draw.js"></script>
+  <!-- 聚合点 -->
+  <link rel="stylesheet" href="<%= webpackConfig.output.publicPath %>leaflet/markerCluster/markerCluster.css">
+  <link rel="stylesheet" href="<%= webpackConfig.output.publicPath %>leaflet/markerCluster/markerCluster.Default.css">
+  <script src="<%= webpackConfig.output.publicPath %>leaflet/markerCluster/leaflet.markercluster.js"></script>
+</head>
+<body>
+<noscript>
+  <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+    Please enable it to continue.</strong>
+</noscript>
+
+<!-- require cdn assets js -->
+<% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.js) { %>
+<script type="text/javascript" src="<%= htmlWebpackPlugin.options.cdn.js[i] %>"></script>
+<% } %>
+
+<div id="app"></div>
+<script src="./js/cci.js"></script>
+<!-- built files will be auto injected -->
+</body>
+</html>
