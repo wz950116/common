@@ -2,16 +2,44 @@
   <div class="merchant-edit basePage">
     <my-form ref="form" :formOptions="formOptions" :fillData="fillData">
       <template #zb="{ formData, panelIndex }">
-        <div class="flex-hs" @click="selectMap(formData[panelIndex].longitude, formData[panelIndex].latitude)">
-          <div :style="{ color: !formData[panelIndex].address ? '#BFBFBF' : '#666666' }">
+        <div
+          class="flex-hs"
+          @click="
+            selectMap(
+              formData[panelIndex].longitude,
+              formData[panelIndex].latitude
+            )
+          "
+        >
+          <div
+            :style="{
+              color: !formData[panelIndex].address ? '#BFBFBF' : '#666666'
+            }"
+          >
             {{ formData[panelIndex].address || '地图上点击选择' }}
           </div>
           <cmb-icon class="loction_icon" name="location" />
         </div>
       </template>
       <template #storeName>
-        <field-picker v-model="state.storeName" label="五包商户" valueKey="storeInfo" code="id" opType="edit" :columns="state.storeList" columns-top placeholder="" required @changeall="onChange">
-          <cmb-search slot="columnsTop" v-model="state.searchKey" placeholder="请输入搜索关键词" @input="onSearch" />
+        <field-picker
+          v-model="state.storeName"
+          label="五包商户"
+          valueKey="storeInfo"
+          code="id"
+          opType="edit"
+          :columns="state.storeList"
+          columns-top
+          placeholder=""
+          required
+          @changeall="onChange"
+        >
+          <cmb-search
+            slot="columnsTop"
+            v-model="state.searchKey"
+            placeholder="请输入搜索关键词"
+            @input="onSearch"
+          />
         </field-picker>
       </template>
     </my-form>
@@ -29,7 +57,13 @@ import { fileUpload } from '@/api'
 import { Toast } from '@cci/mcui'
 import FieldPicker from '@/components/FieldPicker'
 import { useRoute, useRouter } from '@/utils/vueApi'
-import { createStoreCase, getStoreManageTypeComboBox, findByManagerTypeCode, findByCategoryCode, findListByStoreName } from '../store'
+import {
+  createStoreCase,
+  getStoreManageTypeComboBox,
+  findByManagerTypeCode,
+  findByCategoryCode,
+  findListByStoreName
+} from '../store'
 const route = useRoute()
 const router = useRouter()
 
@@ -200,7 +234,9 @@ const codeChange = (val, formData) => {
 }
 // 立案条件修改
 const acceptStandardChange = (val, formData) => {
-  formData.closeStandard = state.categoryList.find((v) => v.acceptStandard === val)?.closeStandard
+  formData.closeStandard = state.categoryList.find(
+    (v) => v.acceptStandard === val
+  )?.closeStandard
 }
 // 打开地图
 const selectMap = (lng, lat) => {

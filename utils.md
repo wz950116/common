@@ -11,6 +11,14 @@ import ClipboardJS from 'clipboard';
 import VuexPersistence from 'vuex-persist'
 import lrz from 'lrz'
 import { debounce, throttle } from 'lodash-es'
+import pinyin from 'js-pinyin'
+```
+## 把汉字转化为拼音字母
+``` bash
+pinyin.setOptions({ checkPolyphone: false, charCase: 1 }) // charCase设为0则输出大驼峰
+pinyin.getFullChars('管理员') // guanliyuan
+pinyin.getCamelChars('管理员') // gly
+pinyin.getCamelChars('管理员').charAt(0) // g
 ```
 ## H5唤起各种地图APP
 ``` bash
@@ -390,11 +398,25 @@ export function getImageFileFromUrl(url, filename) {
 export function getImageFileFromBase64(url) {
   lrz(url, {
     width: 300
-    // quality: 0.8 // 自定义使用压缩方式
+    // quality: 0.8 // 自定义使用压缩方式，ios拍照图片可能会旋转90°，因此不建议用lrz进行压缩
   }).then((file) => {
     console.log(file.file)
   }).catch(error => {
     console.log(error, 'transform fail!')
+  })
+}
+```
+* 图片压缩
+``` bash
+export function getCompressorImage(file) {
+  new Compressor(file, {
+    quality: 0.6,
+    success: (result) => {
+      console.log(result)
+    },
+    error(err) {
+      console.log(err.message)
+    }
   })
 }
 ```
@@ -822,38 +844,6 @@ export function thousands(value, digit) {
   }
 }
 ```
-* 身份证
-``` bash
-export function isCardNo(card) {
-  var _IDRe18 = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9XxZz]$/
-  var _IDre15 = /^([1-6][1-9]|50)\d{4}\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}$/
-  if (_IDRe18.test(card) || _IDre15.test(card)) {
-    return true
-  }
-  return false
-}
-```
-* 银行卡
-``` bash
-export function isBankCard(card) {
-  var reg = new RegExp(/^([1-9]{1})(\d{11}|\d{15}|\d{16}|\d{17}|\d{18})$/)
-  if (reg.test(card) === false) {
-    return false;
-  }
-  return true;
-}
-```
-* 手机号
-``` bash
-export function validateTelephone(obj) {
-  var pattern = /^(^(\d{3,4}-)?\d{7,8})$|(^1[3|4|5|7|8][0-9]{9})$/
-  if (pattern.test(obj)) {
-    return true;
-  } else {
-    return false;
-  }
-}
-```
 * URL
 ``` bash
 export function validateURL(textval) {
@@ -924,5 +914,34 @@ export function validateAnyPoint(str) {
 export function validateStrongPassword(str) {
   const reg = /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[~!@#$%^&*])[\da-zA-Z~!@#$%^&*]{8,}$/
   return reg.test(str)
+}
+```
+* 是否是汉字
+``` bash
+export function validateStrongPassword(str) {
+  const reg = /^[\u4e00-\u9fa5]+$/
+  return reg.test(str)
+}
+```
+* 是否是身份证
+``` bash
+export function isCardNo(card) {
+  var _IDRe18 = /^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9XxZz]$/
+  var _IDre15 = /^([1-6][1-9]|50)\d{4}\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}$/
+  return _IDRe18.test(card) || _IDre15.test(card)
+}
+```
+* 是否是银行卡
+``` bash
+export function isBankCard(card) {
+  var reg = new RegExp(/^([1-9]{1})(\d{11}|\d{15}|\d{16}|\d{17}|\d{18})$/)
+  return reg.test(card)
+}
+```
+* 是否是电话号码，包括手机号、座机号
+``` bash
+export function validateTelephone(obj) {
+  var pattern = /^(^(\d{3,4}-)?\d{7,8})$|(^1[3|4|5|7|8][0-9]{9})$/
+  return pattern.test(obj)
 }
 ```

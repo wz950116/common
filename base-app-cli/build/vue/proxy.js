@@ -26,5 +26,9 @@ module.exports = {
   '/yuezy': {
     target: 'http://10.10.160.67:11006/', // 测试
     changOrigin: true
+  },
+  '/mqwb': {
+    target: 'http://10.10.77.134:9410/', // 测试
+    changOrigin: true
   }
 }
