@@ -1,13 +1,12 @@
 <template>
   <div class="tinymce-editor">
-    <Editor :id="editorId" :init="editorInit" :disabled="disabled" @onClick="handleClick" />
+    <Editor ref="myEditor" :id="editorId" :init="editorInit" :disabled="disabled" @onClick="handleClick" />
   </div>
 </template>
 
 <script>
-// "@tinymce/tinymce-vue": "^3.0.1",
-// "tinymce": "^5.0.3",
-
+// npm install --save tinymce @tinymce/tinymce-vue
+import request from '@/utils/request.js'
 // 引入组件
 import tinymce from 'tinymce/tinymce'
 import Editor from '@tinymce/tinymce-vue'
@@ -15,6 +14,7 @@ import Editor from '@tinymce/tinymce-vue'
 import 'tinymce/themes/silver/theme.min.js'
 import 'tinymce/skins/ui/oxide/skin.min.css'
 // 扩展插件
+import '/public/tinymce-dist/plugins/axupimgs'
 import 'tinymce/plugins/image'
 import 'tinymce/plugins/media'
 import 'tinymce/plugins/link'
@@ -45,11 +45,15 @@ export default {
     },
     plugins: {
       type: [String, Array],
-      default: 'link lists image code table wordcount'
+      default: 'link lists image media code table wordcount axupimgs'
     },
     toolbar: {
       type: [String, Array],
-      default: 'fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent blockquote | undo redo | link unlink image media code | removeformat'
+      default: 'fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent blockquote | undo redo | link unlink image media code axupimgs | removeformat'
+    },
+    uploadCallback: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -65,7 +69,28 @@ export default {
         menubar: true, // 最上方的菜单
         branding: false, // 水印“Powered by TinyMCE”
         images_upload_handler: (blobInfo, success, failure) => {
-          this.$emit('handleImgUpload', blobInfo, success, failure)
+          if (this.uploadCallback) {
+            this.$emit('handleImgUpload', blobInfo, success, failure)
+          } else {
+            const formData = new FormData()
+            formData.append('file', blobInfo.blob())
+            request({
+              method: 'post',
+              url: '/ps/common/file/upload',
+              data: formData,
+              processData: false, // 告诉axios不要去处理发送的数据(重要参数)
+              contentType: false // 告诉axios不要去设置Content-Type请求头
+            }).then((res) => {
+              console.log('image')
+              if (res.success) {
+                success(res.data.fileUrl.match(/\/file\/.*/)[0])
+              } else {
+                failure()
+              }
+            }).catch((err) => {
+              failure(err)
+            })
+          }
         },
         file_picker_callback: (callback, value, meta) => {
           if (meta.filetype === 'media' || meta.filetype === 'image') {
@@ -81,23 +106,23 @@ export default {
               const file = this.files[0]
               const formData = new FormData()
               formData.append('file', file)
-              // request({
-              //   method: 'post',
-              //   url: '/ps/common/file/upload',
-              //   data: formData,
-              //   processData: false, // 告诉axios不要去处理发送的数据(重要参数)
-              //   contentType: false // 告诉axios不要去设置Content-Type请求头
-              // }).then((res) => {
-              //   if (res.success) {
-              //     callback(res.data.fileUrl)
-              //   }
-              // })
+              request({
+                method: 'post',
+                url: '/ps/common/file/upload',
+                data: formData,
+                processData: false, // 告诉axios不要去处理发送的数据(重要参数)
+                contentType: false // 告诉axios不要去设置Content-Type请求头
+              }).then((res) => {
+                console.log(res, 'video')
+                if (res.success) {
+                  callback(res.data.fileUrl.match(/\/file\/.*/)[0]) // 全路径video标签无法播放，必须使用相对路径代理
+                }
+              })
             }
             input.click()
           }
         },
         init_instance_callback: (editor) => {
-          // 确保接口返回数据后再显示编辑器
           if (this.value) {
             editor.setContent(this.value)
           }
@@ -106,8 +131,7 @@ export default {
           })
         }
       },
-      editorId: this.id,
-      editorValue: this.value
+      editorId: this.id
     }
   },
   mounted() {
@@ -118,8 +142,7 @@ export default {
       this.$emit('onClick', e, tinymce)
     },
     clear() {
-      this.editorValue = ''
-      this.$emit('input', '')
+      this.$refs.myEditor.editor.setContent('')
     }
   }
 }

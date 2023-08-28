@@ -368,28 +368,29 @@ export function getImageFileFromUrl(url, imageName) {
 export function getImageFileFromUrl(url, filename) {
   // 创建Image实例比创建img标签更优
   const Img = new Image()
-  let dataURL = ""
-  Img.src = url + "?v=" + Math.random() // 处理缓存,fix缓存bug,有缓存，浏览器会报错;
-  Img.setAttribute("crossOrigin", "Anonymous") // 解决控制台跨域报错的问题
-  Img.onload = function () {
-    const canvas = document.createElement("canvas")
+  let dataURL = ''
+  Img.src = url + '?v=' + Math.random() // 处理缓存,fix缓存bug,有缓存，浏览器会报错;
+  Img.setAttribute('crossOrigin', 'Anonymous') // 解决控制台跨域报错的问题
+  Img.onload = () => {
+    const canvas = document.createElement('canvas')
     const width = Img.width
     const height = Img.height
     canvas.width = width
-    canvas.height = height;
-    canvas.getContext("2d").drawImage(Img, 0, 0, width, height)
-    dataURL = canvas.toDataURL("image/jpeg") // 转换图片为dataURL
+    canvas.height = height
+    canvas.getContext('2d').drawImage(Img, 0, 0, width, height)
+    dataURL = canvas.toDataURL('image/jpeg') // 转换图片为dataURL
 
-    const arr = dataurl.split(",")
+    const arr = dataURL.split(',')
     const mime = arr[0].match(/:(.*?);/)[1]
     const bstr = atob(arr[1])
-    const n = bstr.length
+    let n = bstr.length
     const u8arr = new Uint8Array(n)
     while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
+      u8arr[n] = bstr.charCodeAt(n)
     }
     const file = new File([u8arr], filename, { type: mime })
     this.fileList.push(file)
+    console.log(this.fileList, 2233)
   }
 }
 ```
@@ -627,8 +628,8 @@ export function toChinesNum(num) {
 ```
 ## 坐标转换（WGS84：天地图、 GCJ02：高德、 BD09：百度）
 ``` bash
-export function transformPoint(target, type = 'WGS84', targetType = 'GCJ02') {
-  return gcoord.transform(target, gcoord[type], gcoord[targetType])
+export function transformPoint(target = [116.403988, 39.914266], type = 'WGS84', targetType = 'GCJ02') {
+  return gcoord.transform(target, gcoord[type], gcoord[targetType]) // 或者自己通过算法计算，详情见@/utils/transformPoint.js
 }
 ```
 ## 防抖动(最后一次调用过后指定时间执行一次)

@@ -19,12 +19,16 @@ export class MapContainer {
     this.markerLayer = new Map()
     // init
     this.initMap(options)
+    // 配置项
     this.options = Object.assign({}, options)
-    this._clickHook = this.options.clickHook || null
+    // 单个点位
+    this.localtionMarker = null
     // 存放不同的信息窗口
-    this.infoWindowMap = {}
-    this.markers = []
-    this.markersId = new Set()
+    this.infoWindow = null
+    // 热力图
+    this.heatmap = null
+    // 卫星图
+    this.satelliteLayer = null
   }
 
   /**
@@ -36,7 +40,9 @@ export class MapContainer {
     const map = new AMap.Map(
       options.target,
       Object.assign({
-        center: [120.418512, 30.84969],
+        mapStyle: 'amap://styles/01516727b6666c5a6b4b0ef52e054936',
+        center: [120.047356, 28.88899],
+        zoom: 17,
         zooms: [3, 20],
         expandZoomRange: true,
         ...options
@@ -60,12 +66,24 @@ export class MapContainer {
   }
 
   /**
+   * 删除指定图层
+   * @param {any} name 图层名称
+   */
+  clearLayer(name = 'normal') {
+    let layer = this.markerLayer.get(name)
+    if (this.markerLayer.has(name)) {
+      layer.clearOverlays()
+      console.log(this.markerLayer)
+    }
+  }
+
+  /**
    * 添加多个点
    * @param {any} name 图层名称
    * @param {Array} points 点位数组
    * @param {*} type
    */
-  addPoints({ name, points, toCenter }) {
+  addPoints({ name = 'normal', points, toCenter = true, onclick, popup, showPopup = false }) {
     let layer = this.markerLayer.get(name)
     if (this.markerLayer.has(name)) {
       layer.clearOverlays()
@@ -73,9 +91,11 @@ export class MapContainer {
       this.markerLayer.set(name, new AMap.OverlayGroup())
       layer = this.markerLayer.get(name)
     }
+    // 关闭打开的弹窗
+    this.clearInfoWindow()
+    // 遍历创建点实例
     const markers = []
     points.forEach((item, index) => {
-      // 创建点实例
       if (!/\d/.test(item.lat || item.latitude)) {
         return
       }
@@ -84,10 +104,30 @@ export class MapContainer {
       if (longitude && latitude) {
         const marker = new AMap.Marker({
           position: new AMap.LngLat(longitude, latitude),
-          icon: MAP_STYLE[name],
-          extData: { type: name, ...item }
+          icon: MAP_STYLE[item.name || name],
+          anchor: 'bottom-center' // 等价于offset: new AMap.Pixel(-1/2width, -height)
         })
-        marker.on("click", this.markerClick.bind(this))
+        marker.on("click", () => {
+          onclick && onclick({ type: item.name || name, ...item })
+          // 点击标记打开弹窗
+          if (showPopup && !this.infoWindow) {
+            this.openInfoWindow({
+              target: popup || item.popup, // dom ref
+              longitude,
+              latitude,
+              offset: item.popupOffset || [0, 0]
+            })
+            // 激活标记
+            marker.setIcon(MAP_STYLE[(item.name || name) + 'Active'])
+            // 打开弹窗回调
+            item.popupopen && item.popupopen()
+            // 关闭弹窗回调
+            this.infoWindow.on('close', () => {
+              marker.setIcon(MAP_STYLE[item.name || name])
+              this.infoWindow = null
+            })
+          }
+        })
         markers.push(marker)
       }
       if (index === 0 && toCenter) {
@@ -99,7 +139,7 @@ export class MapContainer {
   }
 
   /**
-   * 设置单个地图点位
+   * 设置单个点位
    * @param {Number} {longitude} 经度
    * @param {Number} {latitude} 纬度
    * @param {Icon} {icon} 点位图标
@@ -125,10 +165,84 @@ export class MapContainer {
     }
   }
 
-  // 清除定位点击点位
+  // 删除单个点位
   clearLocaltion() {
     this.localtionMarker && this.localtionMarker.setMap(null)
     this.localtionMarker = null
+  }
+
+  /**
+   * 添加聚合点位
+   *
+   * @param {Array} { data } 点位数据
+   * @param {String} { type } 点位类型
+   * @param {Object} { markerOpt } 点配置
+   * @param {Function} { markerClickCallback } 坐标点点击回调
+   * @param {Object} { options } 聚合配置
+   * @memberof MapContainer
+   */
+  addMarkerClusterer({ data, name = 'normal', markerOpt, markerClickCallback, options, toCenter = true, showPopup, popup }) {
+    const markers = data.map(item => {
+      const longitude = item.lon || item.lng || item.longitude
+      const latitude = item.lat || item.latitude
+      const marker = new AMap.Marker({
+        position: new AMap.LngLat(longitude, latitude),
+        extData: item,
+        icon: new AMap.Icon(AMapStyle.clusterMarker[item.name || name]),
+        ...markerOpt
+      })
+      marker.on('click', () => {
+        // 点击回调事件
+        markerClickCallback && marker.on('click', markerClickCallback)
+        // 点击标记打开弹窗
+        if (showPopup && !this.infoWindow) {
+          this.openInfoWindow({
+            target: popup || item.popup, // dom ref
+            longitude,
+            latitude,
+            offset: item.popupOffset || [0, 0]
+          })
+          // 打开弹窗回调
+          item.popupopen && item.popupopen()
+          // 关闭弹窗回调
+          this.infoWindow.on('close', () => {
+            marker.setIcon(MAP_STYLE[item.name || name])
+            this.infoWindow = null
+          })
+        }
+      })
+
+      return marker
+    })
+    
+    if (data.length && toCenter) {
+      this.setCenterPosition([data[0].longitude || data[0].lng, data[0].latitude || data[0].lat], 12)
+    }
+
+    // clusterMarkersMap 分类管理聚合点数据
+    let clusterMarkers = this.clusterMarkersMap.get(name)
+    window.clusterMarkersMap = this.clusterMarkersMap
+
+    if (clusterMarkers) {
+      clusterMarkers.setMarkers(markers)
+    } else {
+      clusterMarkers = new AMap.MarkerClusterer(this.map, markers, {
+        styles: AMapStyle.clusterStyle,
+        gridSize: 80,
+        maxZoom: 15,
+        ...options
+      })
+      this.clusterMarkersMap.set(name, clusterMarkers)
+    }
+  }
+
+  // 清除聚合点
+  clearAllClusterMarker(name = 'normal') {
+    for (var map of this.clusterMarkersMap) { // 遍历Map
+      map[1].clearMarkers()
+    }
+    let marker = this.clusterMarkersMap.get(name)
+    marker && marker.clearMarkers()
   }
 
   /**
@@ -167,7 +281,7 @@ export class MapContainer {
   }
 
   /**
-   * 切换海量点涂层显示隐藏
+   * 切换海量点图层显示隐藏
    * @param {String} type 点位类型
    * @param {Boolean} show 显示隐藏
    */
@@ -192,6 +306,7 @@ export class MapContainer {
     }
   }
 
+  // 清除海量点
   clearMassType(type) {
     if (this.massMarksMap.has(type)) {
       const mass = this.massMarksMap.get(type)
@@ -212,6 +327,82 @@ export class MapContainer {
       const mass = this.massMarksMap.get(type)
       mass.setStyle(AMapStyle[type])
     }
+  }
+
+  /**
+   *打开信息弹窗
+   * @param {String/HTMLElement} { target } // 显示内容，可以是HTML要素字符串或者HTMLElement对象
+   * @param {*} { longitude } // 经度
+   * @param {*} { latitude } // 纬度
+   * @param {Array} { offset } // 信息窗体显示位置偏移量。默认基准点为信息窗体的底部中心（若设置了anchor，则以anchor值为基准点）。
+   * @param {Function} { closeCallback } // 关闭弹窗的回调
+   * @memberof MapContainer
+   */
+  openInfoWindow({ target, longitude, latitude, offset, closeWhenClickMap = false, closeCallback = (() => {}) }) {
+    const position = new AMap.LngLat(longitude, latitude)
+    this.infoWindow = new AMap.InfoWindow({
+      isCustom: true, // 使用自定义窗体
+      content: target,
+      position,
+      autoMove: true,
+      closeWhenClickMap,
+      offset: new AMap.Pixel(offset[0], offset[1])
+    })
+    // 关闭回调
+    closeCallback && this.infoWindow.on('close', closeCallback)
+    this.infoWindow.open(this.map, position)
+  }
+
+  /**
+   * 清除信息窗口
+   */
+  clearInfoWindow() {
+    if (this.infoWindow) {
+      this.infoWindow.close()
+      this.infoWindow = null
+    }
+  }
+
+  // 移动地图到指定位置
+  setCenterPosition(lnglat, zoom = this.map.getZoom()) {
+    this.map.setZoomAndCenter(zoom, lnglat)
+  }
+
+  // 构造卫星图
+  addSatellite() {
+    this.satelliteLayer = new AMap.TileLayer.Satellite()
+    this.map.add([this.satelliteLayer])
+  }
+  
+  // 删除卫星图
+  clearSatellite() {
+    this.satelliteLayer && this.map.remove(this.satelliteLayer)
+    this.satelliteLayer = null
+  }
+
+  /**
+   * 添加热力图
+   * @param {Array} data 数据
+   * @param {Number} radius 点半径
+   * @param {Array} opacity 透明度数组
+   */
+  addHeatMap(data, radius, opacity) {
+    if (!this.heatmap) {
+      this.heatmap = new AMap.Heatmap(this.map, {
+        radius: radius || 25, // 给定半径
+        opacity: opacity || [0, 0.8]
+      })
+    }
+    this.heatmap.setDataSet({
+      data: data
+      // max: 100
+    })
+  }
+
+  // 删除热力图
+  clearHeatMap() {
+    this.heatmap && this.map.remove(this.heatmap)
+    this.heatmap = null
   }
 
   /**
@@ -400,141 +591,6 @@ export class MapContainer {
     } else {
       this.mouseToolDraw(type, styleOption, false, fn)
     }
-  }
-
-  /**
-   * 添加聚合点位
-   *
-   * @param {Array} { data } 点位数据
-   * @param {String} { type } 点位类型
-   * @param {Object} { markerOpt } 点配置
-   * @param {Function} { markerClickCallback } 坐标点点击回调
-   * @param {Object} { options } 聚合配置
-   * @memberof MapContainer
-   */
-  addMarkerClusterer({ data, type = 'default', markerOpt, markerClickCallback, options }) {
-    const markers = data.map(item => {
-      const marker = new AMap.Marker({
-        position: new AMap.LngLat(item.longitude, item.latitude),
-        extData: item,
-        icon: new AMap.Icon(AMapStyle.clusterMarker[item.iconName]),
-        ...markerOpt
-      })
-
-      markerClickCallback && marker.on('click', markerClickCallback)
-
-      return marker
-    })
-
-    // clusterMarkersMap 分类管理聚合点数据
-    let clusterMarkers = this.clusterMarkersMap.get(type)
-    window.clusterMarkersMap = this.clusterMarkersMap
-
-    if (clusterMarkers) {
-      clusterMarkers.setMarkers(markers)
-    } else {
-      clusterMarkers = new AMap.MarkerClusterer(this.map, markers, {
-        styles: AMapStyle.clusterStyle,
-        gridSize: 80,
-        maxZoom: 15,
-        ...options
-      })
-      this.clusterMarkersMap.set(type, clusterMarkers)
-    }
-  }
-
-  // 清除聚合点
-  clearAllClusterMarker() {
-    for (var map of this.clusterMarkersMap) { // 遍历Map
-      map[1].clearMarkers()
-    }
-  }
-
-  /**
-   *
-   * @param {Array} data 数据
-   * @param {Number} radius 点半径
-   * @param {Array} opacity 透明度数组
-   */
-  addHeatMap(data, radius, opacity) {
-    if (!this.heatmap) {
-      this.heatmap = new AMap.Heatmap(this.map, {
-        radius: radius || 25, // 给定半径
-        opacity: opacity || [0, 0.8]
-      })
-    }
-    this.heatmap.setDataSet({
-      data: data
-      // max: 100
-    })
-  }
-
-  /**
-   *打开信息弹窗
-   * @param {String/HTMLElement} { target } // 显示内容，可以是HTML要素字符串或者HTMLElement对象
-   * @param {*} { longitude } // 经度
-   * @param {*} { latitude } // 纬度
-   * @param {Array} { offset } // 信息窗体显示位置偏移量。默认基准点为信息窗体的底部中心（若设置了anchor，则以anchor值为基准点）。
-   * @param {Function} { closeCallback } // 关闭弹窗的回调
-   * @memberof MapContainer
-   */
-  openInfoWindow({ target, longitude, latitude, offset, closeWhenClickMap = true, closeCallback }) {
-    const position = new AMap.LngLat(longitude, latitude)
-    if (this.infoWindow) {
-      this.infoWindow.close()
-      this.infoWindow.setPosition(position)
-      this.infoWindow.setContent(target)
-    } else {
-      this.infoWindow = new AMap.InfoWindow({
-        isCustom: true, // 使用自定义窗体
-        content: target,
-        position,
-        autoMove: true,
-        closeWhenClickMap: closeWhenClickMap,
-        offset: new AMap.Pixel(offset[0], offset[1])
-      })
-    }
-    // 清除上一次的关闭回调
-    this.infoWindow._oldCallback && this.infoWindow.off('close', this.infoWindow._oldCallback)
-    // 将关闭回调保存下来
-    this.infoWindow._oldCallback = closeCallback
-    closeCallback && this.infoWindow.on('close', closeCallback)
-
-    this.infoWindow.open(this.map, position)
-  }
-
-  /**
-   * 清除信息窗口
-   */
-  clearInfoWindow() {
-    if (this.infoWindow) {
-      this.infoWindow.close()
-      // 清除上一次的关闭回调
-      this.infoWindow._oldCallback && this.infoWindow.off('close', this.infoWindow._oldCallback)
-    }
-  }
-
-  // 移动地图到指定位置
-  setCenterPosition(lnglat, zoom = this.map.getZoom()) {
-    this.map.setZoomAndCenter(zoom, lnglat)
-  }
-
-  // 构造卫星图
-  addSatellite() {
-    this.satelliteLayer = new AMap.TileLayer.Satellite()
-    this.map.add([this.satelliteLayer])
-  }
-  // 删除卫星图
-  removeSatellite() {
-    this.map.remove(this.satelliteLayer)
-  }
-
-  /**
-   * 点位点击触发
-   * @param {Event} e
-   */
-   markerClick(e) {
-    this._clickHook && this._clickHook(e)
   }
 }
 

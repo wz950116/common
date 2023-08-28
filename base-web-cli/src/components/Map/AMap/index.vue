@@ -73,6 +73,7 @@ export default {
     },
     // 设置点标记
     initMarker([lng, lat]) {
+      // 1、自定义
       if (!lng || !lat) return
       const lnglat = new AMap.LngLat(lng, lat)
       if (!this.marker) {
@@ -84,6 +85,11 @@ export default {
         this.marker.setPosition(lnglat)
       }
       this.map.map.setCenter(lnglat)
+      // 2、调用封装方法
+      // this.map.addPoints({
+      //   points: [{ lng, lat, popup: this.$refs.xxx, offset: new AMap.Pixel(-18, -48), popupopen: () => {} }],
+      //   showPopup: true // 点击打开弹窗，弹窗属性由points参数的属性控制
+      // })
     },
     // 获取地址
     getAddress(lnglat) {
@@ -109,6 +115,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.map-demo {
+  width: 100%;
+  height: 100%;
+}
 .map-container {
   position: relative;
   height: 100%;
