@@ -13,6 +13,15 @@ import lrz from 'lrz'
 import { debounce, throttle } from 'lodash-es'
 import pinyin from 'js-pinyin'
 ```
+## 手机号脱敏
+``` bash
+export function phoneDesensitization(phone) {
+  if (phone.length === 11) {
+    return phone.replace(/(\d{3})\d*(\d{4})/, "$1****$2")
+  }
+  return phone
+}
+```
 ## 把汉字转化为拼音字母
 ``` bash
 pinyin.setOptions({ checkPolyphone: false, charCase: 1 }) // charCase设为0则输出大驼峰
@@ -427,8 +436,7 @@ export function getCompressorImage(file) {
 export function downloadFile(res) {
   // responseType: blob
   const downloadLink = window.document.createElement('a')
-    let fileName = res.headers && res.headers.hasOwnProperty('content-disposition') && (decodeURI(res.headers['content-disposition']).match(/file[n|N]ame=(.+)/) || decodeURI(res.headers['content-disposition']).match(/file[n|N]ame\*=(.+)/))[1]
-  fileName = fileName || (Math.random().toString(16).split('.')[1] + '.xlsx')
+  const fileName || (Math.random().toString(16).split('.')[1] + '.xlsx')
   const fileUrl = res.data && window.URL.createObjectURL(res.data)
   downloadLink.href = fileUrl
   downloadLink.download = fileName
@@ -474,6 +482,23 @@ export function _downloadFile(resBlob, fileName) {
   }
 }
 ```
+* 方法四
+``` bash
+export function downloadByUrl(url, name) {
+  try {
+    const elt = document.createElement("a");
+    elt.setAttribute("href", url);
+    elt.setAttribute("download", name);
+    elt.setAttribute("target", '_blank');
+    elt.style.display = "none";
+    document.body.appendChild(elt);
+    elt.click();
+    document.body.removeChild(elt);
+  } catch (error) {
+    console.log(error);
+  }
+}
+```
 ## 深拷贝
 ``` bash
 export function deepCopy(obj) {
@@ -488,6 +513,15 @@ export function deepCopy(obj) {
     }
   }
   return result
+}
+```
+## 树结构转换成一维数组
+``` bash
+export function treeToArray(tree) {
+  return tree.reduce((res, item) => {
+    const { children, ...i } = item
+    return res.concat(i, children && children.length ? treeToArray(children) : [])
+  }, [])
 }
 ```
 ## 根据ID获取该节点的所有父节点的数组对象

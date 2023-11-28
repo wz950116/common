@@ -610,6 +610,22 @@ export function getAddressByLnglat(lnglat, callback, options = { city: "全国",
     }
   })
 }
+  
+/**
+ * 搜索兴趣点
+ * @param {String} val 关键词
+ * @param {Function} cb 结果标记物点击回调事件
+ * @param {String} city 查询城市
+ */
+export function searchPosAndMarker(val, cb, city = '新余市') {
+  const placeSearch = new AMap.PlaceSearch({
+    city
+  })
+  placeSearch.search(val, (status, result) => {
+    const pois = result.poiList && result.poiList.pois
+    cb(pois)
+  })
+}
 
 /**
  * @param {Array} target 当前坐标
