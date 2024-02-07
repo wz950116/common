@@ -40,7 +40,6 @@ export default {
     }
   },
   beforeDestroy() {
-    console.log(111)
     this.hls && this.hls.stopLoad()
     this.hls && this.hls.destroy()
   }

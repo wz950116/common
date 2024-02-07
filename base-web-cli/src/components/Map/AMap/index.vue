@@ -1,8 +1,8 @@
 <template>
-  <div class="map-demo">
+  <div class="map-container">
     <div ref="container" style="width: 100%; height: 100%"></div>
     <div class="map-search">
-      <c-select v-model="searchVal" filterable remote reserve-keyword placeholder="请输入地址" :remote-method="searchPlace" popper-class="address-popper" :loading="loading" value-key="name">
+      <c-select v-model="searchVal" filterable remote reserve-keyword placeholder="请选择地址" :remote-method="searchPlace" popper-class="address-popper" :loading="loading" value-key="name">
         <c-option v-for="item in addressOptions" :key="item.id" :label="item.name" :value="item">
           <div class="address-item" @click="clickArea(item)">
             <span class="name">{{ item.name }}</span>
@@ -15,7 +15,7 @@
 </template>
 <script>
 import AMap from 'AMap'
-import { MapContainer } from './amap'
+import { MapContainer, searchPosAndMarker } from './amap'
 export default {
   filters: {
     textEclipse(val) {
@@ -26,11 +26,16 @@ export default {
       }
     }
   },
+  props: {
+    useClick: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       map: null,
-      defaultData: [],
-      searchList: [],
+      marker: null,
       searchVal: '',
       loading: false,
       addressOptions: [],
@@ -58,12 +63,18 @@ export default {
         this.map.destroy()
         this.map = null
       })
+      // 是否可点击地图打点
+      this.useClick && this.map.map.on('click', (e) => {
+        const { lng, lat } = e.lnglat
+        this.initMarker([lng, lat])
+        this.$emit('map-click', e.lnglat)
+      })
     },
     // 搜索兴趣点列表
     searchPlace(query) {
       if (query !== '') {
         this.loading = true
-        this.map.searchPosAndMarker(query, (data) => {
+        searchPosAndMarker(query, (data) => {
           this.loading = false
           this.addressOptions = data
         })
@@ -74,7 +85,10 @@ export default {
     // 设置点标记
     initMarker([lng, lat]) {
       // 1、自定义
-      if (!lng || !lat) return
+      if (!lng || !lat) {
+        this.removeMarker()
+        return
+      }
       const lnglat = new AMap.LngLat(lng, lat)
       if (!this.marker) {
         this.marker = new AMap.Marker({
@@ -91,11 +105,17 @@ export default {
       //   showPopup: true // 点击打开弹窗，弹窗属性由points参数的属性控制
       // })
     },
+    removeMarker() {
+      if (this.marker) {
+        this.map.map.remove(this.marker)
+        this.marker = null
+      }
+    },
     // 获取地址
-    getAddress(lnglat) {
+    getAddress(lnglat, cb) {
       this.map.geocoder.getAddress(lnglat, (status, result) => {
         if (status === 'complete' && result.regeocode) {
-          this.$refs.myForm.formData[0].address = result.regeocode.formattedAddress
+          cb(result.regeocode.formattedAddress)
         } else {
           console.error('根据经纬度查询地址失败')
         }
@@ -107,7 +127,7 @@ export default {
         this.form.longitude = e.location.lng
         this.form.latitude = e.location.lat
         this.initMarker([this.form.longitude, this.form.latitude])
-        this.getAddress([this.form.longitude, this.form.latitude])
+        this.$emit('map-click', e.location)
       }
     }
   }
@@ -115,13 +135,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.map-demo {
-  width: 100%;
-  height: 100%;
-}
 .map-container {
   position: relative;
   height: 100%;
+  height: 300px;
   .map-search {
     position: absolute;
     top: 20px;

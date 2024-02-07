@@ -199,6 +199,19 @@ export function numberFixed(a, b, symbol = '+') {
   return result
 }
 ```
+## 复制原生
+``` bash
+export function initClipboardJS() {
+  // navigator.clipboard.writeText() 用于将文本内容写入剪贴板 异步
+  // navigator.clipboard.write() 用于将文本数据/二进制数据写入剪贴板 异步
+  // document.execCommand('copy')，用于将已选中的文本内容写入剪贴板 同步
+  // 点击复制
+  document.body.addEventListener('click', async(e) => {
+    const text = document.getElementById('input').value
+    await navigator.clipboard.writeText(text)
+  })
+}
+```
 ## 复制插件
 ``` bash
 export function initClipboardJS() {

@@ -1,5 +1,5 @@
 import AMap from 'AMap'
-import AMapStyle, { MAP_STYLE } from "./amap-config"
+import AMapStyle, { MAP_STYLE } from './amap-config'
 import gcoord from 'gcoord'
 const TLayer = {
   base: 'http://t{0,1,2,3,4,5,6,7}.tianditu.gov.cn/DataServer?T=vec_w&tk=ef63801764261c156ba74a40612a717b&x=[x]&y=[y]&l=[z]',
@@ -104,10 +104,9 @@ export class MapContainer {
       if (longitude && latitude) {
         const marker = new AMap.Marker({
           position: new AMap.LngLat(longitude, latitude),
-          icon: MAP_STYLE[item.name || name],
-          anchor: 'bottom-center' // 等价于offset: new AMap.Pixel(-1/2width, -height)
+          icon: MAP_STYLE[item.name || name]
         })
-        marker.on("click", () => {
+        marker.on('click', () => {
           onclick && onclick({ type: item.name || name, ...item })
           // 点击标记打开弹窗
           if (showPopup && !this.infoWindow) {
@@ -214,7 +213,7 @@ export class MapContainer {
 
       return marker
     })
-    
+
     if (data.length && toCenter) {
       this.setCenterPosition([data[0].longitude || data[0].lng, data[0].latitude || data[0].lat], 12)
     }
@@ -338,7 +337,7 @@ export class MapContainer {
    * @param {Function} { closeCallback } // 关闭弹窗的回调
    * @memberof MapContainer
    */
-  openInfoWindow({ target, longitude, latitude, offset, closeWhenClickMap = false, closeCallback = (() => {}) }) {
+  openInfoWindow({ target, longitude, latitude, offset, closeWhenClickMap = false, closeCallback = (() => { }) }) {
     const position = new AMap.LngLat(longitude, latitude)
     this.infoWindow = new AMap.InfoWindow({
       isCustom: true, // 使用自定义窗体
@@ -373,7 +372,7 @@ export class MapContainer {
     this.satelliteLayer = new AMap.TileLayer.Satellite()
     this.map.add([this.satelliteLayer])
   }
-  
+
   // 删除卫星图
   clearSatellite() {
     this.satelliteLayer && this.map.remove(this.satelliteLayer)
@@ -440,7 +439,7 @@ export class MapContainer {
     this.movePoint = new AMap.Marker({
       map: this.map,
       position: path[0],
-      icon: "https://webapi.amap.com/images/car.png",
+      icon: 'https://webapi.amap.com/images/car.png',
       offset: new AMap.Pixel(-26, -13),
       autoRotation: true,
       angle: -90
@@ -598,7 +597,7 @@ export class MapContainer {
    * 逆地理编码
    * @param {Array} lnglat
    */
-export function getAddressByLnglat(lnglat, callback, options = { city: "全国", radius: 500 }) {
+export function getAddressByLnglat(lnglat, callback, options = { city: '全国', radius: 500 }) {
   const geocoder = new AMap.Geocoder({
     ...options
   })
@@ -610,14 +609,14 @@ export function getAddressByLnglat(lnglat, callback, options = { city: "全国",
     }
   })
 }
-  
+
 /**
  * 搜索兴趣点
  * @param {String} val 关键词
  * @param {Function} cb 结果标记物点击回调事件
  * @param {String} city 查询城市
  */
-export function searchPosAndMarker(val, cb, city = '新余市') {
+export function searchPosAndMarker(val, cb, city = '杭州市') {
   const placeSearch = new AMap.PlaceSearch({
     city
   })

@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="">
     <title></title>
+    <script type="text/javascript">
+      // key和密钥配合使用调用相关API，但是不推荐暴露在前端
+      window._AMapSecurityConfig = {
+        securityJsCode: '998db0fcc969ffed81a3c452355da8bd'
+      }
+    </script>
     <script src="https://webapi.amap.com/maps?v=1.4.15&key=19acca8b1816fa575fd5a9576113ba95&plugin=AMap.MouseTool,AMap.Geocoder,AMap.MarkerClusterer,AMap.Autocomplete,AMap.PlaceSearch,AMap.PolyEditor,AMap.Heatmap"></script>
 
   </head>
