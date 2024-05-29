@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <div class="border-1"></div>
     <div class="container">
       <router-link :to="{ name: 'report' }">
         门前五包上报
@@ -44,6 +45,11 @@ export default {
 
 <style lang="less">
 .home {
+  .border-1 {
+    width: 200px;
+    height: 200px;
+    border: 1px solid;
+  }
   .container {
     display: flex;
     flex-wrap: wrap;

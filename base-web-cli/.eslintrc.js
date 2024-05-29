@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   parserOptions: {
-    parser: 'babel-eslint',
+    parser: 'babel-eslint', // 解析器，允许eslint运行在babel解析的代码上，现已更新为@babel/eslint-parser。vue语法也可使用vue-eslint-parser解析
     sourceType: 'module' // 设置为 "script" (默认) 或 "module"（如果你的代码是 ECMAScript 模块)
   },
   env: {

@@ -12,6 +12,7 @@ import VuexPersistence from 'vuex-persist'
 import lrz from 'lrz'
 import { debounce, throttle } from 'lodash-es'
 import pinyin from 'js-pinyin'
+import wx from 'weixin-js-sdk'
 ```
 ## 手机号脱敏
 ``` bash

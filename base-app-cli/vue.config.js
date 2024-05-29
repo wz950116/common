@@ -81,16 +81,16 @@ module.exports = {
     // 开启 CSS source maps?
     sourceMap: false,
     // css预设器配置项
-    loaderOptions: {
-      postcss: {
-        plugins: [
-          require('postcss-pxtorem')({
-            rootValue: 37.5,
-            propList: ['*']
-          })
-        ]
-      }
-    },
+    // loaderOptions: {
+    //   postcss: {
+    //     plugins: [
+    //       require('postcss-pxtorem')({
+    //         rootValue: 37.5, // 设计稿尺寸/10
+    //         propList: ['*']
+    //       })
+    //     ]
+    //   }
+    // },
     // 启用 CSS modules for all css / pre-processor files.
     requireModuleExtension: true
   }
