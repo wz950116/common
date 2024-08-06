@@ -1,5 +1,18 @@
 <template>
   <div>
+    <el-input v-model="abc"></el-input>
+    <div style="overflow:hidden;">
+      <div class="far" style="width:100px;height:100px;background:yellow;margin-bottom:100px;">
+      </div>
+    </div>
+    <div>
+      <div class="child" style="width:100px;height:100px;background:red;margin-top:100px;"></div>
+    </div>
+    <div>
+      <span style="background:red;padding:10px;">1111111111111</span>
+      <img src="" alt="111" title="222">
+      <button @click="increment">Count: {{ count }}</button>
+    </div>
     <div v-for="i in item" :key="i">{{ i }}</div>
     <el-button @click="onClick">click</el-button>
     <div class="elem ml-ellipsis">
@@ -15,18 +28,39 @@
 </template>
 
 <script>
+import { abb } from './demo'
+console.log(abb)
+setTimeout(() => {
+  console.log(abb)
+}, 4000)
 export default {
   name: '',
   data() {
+    // 使用闭包来创建一个私有的count变量
+    let count = 0
     return {
+      abc: 1111,
+      increment: () => ++count, // 内部方法可以访问闭包中的count变量
       item: [1, 2, 3, 4, 5, 6],
       a: '成都草草草草草草草000\n111111111111111草成都草草草草草草草草成都草草222222222222222草草草草草222222\n....草成都草草草草草草草草------<br>+++++++++++成都草草草草草草草草成都草草草草草草草草'
+    }
+  },
+  computed: {
+    // 在计算属性中暴露只读的count值
+    count() {
+      console.log(this.increment)
+      return this.increment
     }
   },
   mounted() {},
   methods: {
     onClick() {
-      this.item.push(4)
+      this.$router.push({
+        // path: '/render-tmp/1111',
+        name: 'renderTmp',
+        params: { id: 11 }
+      })
+      // this.item.push(4)
       // this.item[2] = 100
       // this.$set(this.item, 2, 100)
       // this.item.splice(2, 1, 100)
@@ -36,6 +70,17 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.square {
+  width: 10vw;
+  height: 10vw;
+  background: red;
+}
+.square {
+  width: 10%;
+  padding-bottom: 10%;
+  height: 0; // 防止内容撑开多余的高度
+  background: red;
+}
 button,
 input,
 select,
